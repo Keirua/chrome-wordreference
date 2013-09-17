@@ -10,5 +10,6 @@
   "manifest_version": 2,
   "icons" : {
   	"48": "wr-icon64.png"
-  }
+  },
+  "options_page": "settings.html"
 }

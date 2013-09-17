@@ -1,7 +1,11 @@
 function onClickHandler(info, tab) {
     var selectionText = ( info.selectionText );
-    var baseURL = 'http://www.wordreference.com/enfr/';
-    var serviceCall = baseURL + encodeURIComponent(selectionText);
+
+    var src_lang = localStorage["source"] ? localStorage["source"] : 'en';
+    var dst_lang = localStorage["destination"] ? localStorage["destination"] : 'fr';
+
+    var baseURL = 'http://www.wordreference.com/'
+    var serviceCall = baseURL + src_lang + dst_lang + '/' + encodeURIComponent(selectionText);
     chrome.tabs.create({'url':  serviceCall}, function(tab) {});
 };
 
