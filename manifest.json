@@ -1,0 +1,14 @@
+{
+  "name": "Wordreference in the context menu",
+  "description": "Opens a tab with Wordreference's translation for a selected text from the context menu",
+  "version": "0.1",
+  "permissions": ["tabs", "contextMenus", "http://*/*", "https://*/*"],
+  "background": {
+    "persistent": false,
+    "scripts": ["wordreference.js"]
+  },
+  "manifest_version": 2,
+  "icons" : {
+  	"48": "wr-icon64.png"
+  }
+}
