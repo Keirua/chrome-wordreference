@@ -9,83 +9,76 @@ var lang = {
 var matchingLang = {
     'fr': ['en', 'it', 'de'],
     'en': ['fr', 'de'],
-    'de': [],
-    'it': [],
-    'es': []
+    'de': ['en'],
+    'it': ['en'],
+    'es': ['en']
 };
 
-function onSourceChange () {
-    alert ("plop");
+var MainController = function ($scope) {
+	this.scope = $scope;
+	this.loadOptions();
+
+	this.scope.saveOptions = _.bind (this.saveOptions, this);
+	var me = this;
+	$scope.$watch ('src', function (){
+		var srcLang = $scope.src;
+		var res = {};
+		var foundDstLang = false;
+		for (var i = 0;i < matchingLang[srcLang].length; ++i){
+		    var l = matchingLang[srcLang][i];
+		    res[l] = lang[l];
+		    if (l == $scope.dst){
+		    	foundDstLang = true;
+		    }
+		}
+		$scope.destinationLang = res;
+		if (!foundDstLang){
+			$scope.dst = null;
+		}
+	});
 }
 
-function fillDestinationSelect (sourceLang) {
-    var destSelect = document.getElementById("destination");
-    for (var i = 0;i < matchingLang[sourceLang].length; ++i){
-        var option = document.createElement("option");
-        var l = matchingLang[sourceLang][i];
-        option.value = l;
-        option.text = lang[l];
-        destSelect.appendChild(option);
-    }
-}
-
-function fillSelects (src, dst) {
-    var sourceSelect = document.getElementById("source");
-    for (var i in lang){
-        if (lang.hasOwnProperty (i)){
-            var option = document.createElement("option");
-            option.value = i;
-            option.text = lang[i];
-            sourceSelect.appendChild(option);
-        }
-    }
-    fillDestinationSelect (src);
-}
-
-function saveOption (name) {
-    var elt = document.getElementById(name);
-    var elt_value = elt.children[elt.selectedIndex].value;
-    localStorage[name] 	  = elt_value;
-}
-
-function loadOption(name, defaultValue){
+MainController.prototype.loadOption = function(name, defaultValue){
     var v = localStorage[name];
 
     return v ? v : defaultValue;
 }
 
-function setSelectValue(name, value){
-    var select = document.getElementById(name);
-    for (var i = 0; i < select.children.length; i++) {
-      var child = select.children[i];
-      if (child.value == value) {
-        child.selected = "true";
-        break;
-      }
-    }
-}
+MainController.prototype.saveOptions = function() {
+	if (this.scope.src && this.scope.dst) {
+		localStorage["source"] = 	  this.scope.src;
+		localStorage["destination"] = this.scope.dst;
 
-function saveOptions() {
-    saveOption ("source");
-    saveOption ("destination");
+	    // Update status to let user know options were saved.
+	    var status = document.querySelector("#status");
+	    status.innerHTML = "Options Saved.";
+	    setTimeout(function() {
+	    	status.innerHTML = "";
+	    }, 750);
 
-    // Update status to let user know options were saved.
-    var status = document.getElementById("status");
-    status.innerHTML = "Options Saved.";
-    setTimeout(function() {
-    status.innerHTML = "";
-    }, 750);
+	}
+	else {
+	    alert ("Can't save, one language is not set");
+	}
 }
 
 // Restores select box state to saved value from localStorage.
-function loadOptions() {
-    var src = loadOption ("source", 'en');
-    var dst = loadOption ("destination", 'fr');
-    fillSelects(src, dst);
-    setSelectValue ("source", src);
-    setSelectValue ("destination", dst);
+MainController.prototype.loadOptions = function() {
+    this.scope.src = this.loadOption ("source", 'en');
+    this.scope.dst = this.loadOption ("destination", 'fr');
+    this.fillSelects(this.scope.src, this.scope.dst);
 }
 
+MainController.prototype.fillDestinationSelect = function (srcLang) {
+    var res = {};
+    for (var i = 0;i < matchingLang[srcLang].length; ++i){
+        var l = matchingLang[srcLang][i];
+        res[l] = lang[l];
+    }
+    this.scope.destinationLang = res;
+}
 
-document.addEventListener('DOMContentLoaded', loadOptions);
-document.querySelector('#save').addEventListener('click', saveOptions);
+MainController.prototype.fillSelects = function (src, dst) {
+    this.scope.sourceLang = lang;
+    this.fillDestinationSelect (src);
+}
